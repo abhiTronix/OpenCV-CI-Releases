@@ -28,8 +28,24 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: install_apt_dep
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq unzip wget -y
+          sudo apt-get install -qq dos2unix -y
+          chmod +x check_old_assets.sh
+      - name: install_pip_dep
+        run: |
+          pip install -U pip wheel CppHeaderParser
+        if: success()
+      - name: run check script
+        run: bash check_old_assets.sh
+        shell: bash
+        if: success() && (github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]'))
       - name: Get Release Name
         id: rel_name
         run: |
@@ -37,6 +53,7 @@ jobs:
           TAGNAME="build-$(date +'%Y-%m-%d-%H-%M')"
           echo "::set-output name=release_name::${TAGNAME}"
           echo "::set-output name=tag_name::${TAGNAME}"
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -50,7 +67,7 @@ jobs:
           draft: false
           prerelease: false
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-      - name: Set upload_url
+      - name: set upload_url
         id: set_upload_url
         uses: noobly314/share-data@v1
         with:
@@ -61,7 +78,7 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
 
   build_n_upload:
-    name: Upload OpenCV Binaries
+    name: Build-Upload OpenCV Binaries
     needs: create_gitrelease
     runs-on: ubuntu-latest
     strategy:
@@ -88,7 +105,7 @@ jobs:
         if: success()
       - name: display script ENVS
         run: |
-          echo ${{env.OPENCV_NAME }}
+          echo $OPENCV_NAME
           echo $OPENCV_PATHNAME
         if: success()
       - name: get upload_url
@@ -99,8 +116,8 @@ jobs:
           mode: get
           key: url
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Assets
+        id: upload-assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
