@@ -17,7 +17,7 @@ name: Release OpenCV Binaries
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - "*"
   schedule:
