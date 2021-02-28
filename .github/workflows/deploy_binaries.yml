@@ -1,0 +1,112 @@
+# Copyright (c) 2019-2020 Abhishek Thakur(@abhiTronix) <abhi.una12@gmail.com>
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#    http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: OpenCV Binaries Deployer
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+  schedule:
+    - cron: "0 0 25 * *"
+
+jobs:
+  create_gitrelease:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get Release Name
+        id: rel_name
+        run: |
+          NAME="Build $(date +'%Y-%m-%d %H:%M')"
+          TAGNAME="build-$(date +'%Y-%m-%d-%H-%M')"
+          echo "::set-output name=release_name::${TAGNAME}"
+          echo "::set-output name=tag_name::${TAGNAME}"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
+          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
+        with:
+          tag_name: ${{ env.RELEASE_TAGNAME }}
+          release_name: Release ${{ env.RELEASE_NAME }}
+          draft: false
+          prerelease: false
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
+      - name: Set upload_url
+        id: set_upload_url
+        uses: noobly314/share-data@v1
+        with:
+          share-id: release_url
+          mode: set
+          key: url
+          value: ${{ steps.create_release.outputs.upload_url }}
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
+
+  build_n_upload:
+    name: Upload OpenCV Binaries
+    needs: create_gitrelease
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: install_dependencies apt
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq unzip wget -y
+          sudo apt-get install -qq dos2unix -y
+          chmod +x create_opencv.sh
+      - name: install_dependencies pip
+        run: |
+          pip install -U pip wheel numpy
+        if: success()
+      - name: run script
+        run: bash create_opencv.sh
+        shell: bash
+        if: success()
+      - name: display script ENVS
+        run: |
+          echo ${{env.OPENCV_NAME }}
+          echo $OPENCV_PATHNAME
+        if: success()
+      - name: get upload_url
+        id: get_upload_url
+        uses: noobly314/share-data@v1
+        with:
+          share-id: release_url
+          mode: get
+          key: url
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_upload_url.outputs.data }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.OPENCV_PATHNAME }}
+          asset_name: ${{ env.OPENCV_NAME }}
+          asset_content_type: application/x-deb
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
