@@ -21,7 +21,7 @@ on:
     tags:
       - "*"
   schedule:
-    - cron: "0 0 25 * *"
+    - cron: "0 0 14,28 * *"
 
 jobs:
   create_gitrelease:
