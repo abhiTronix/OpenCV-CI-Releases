@@ -80,7 +80,7 @@ jobs:
   build_n_upload:
     name: Build-Upload OpenCV Binaries
     needs: create_gitrelease
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
