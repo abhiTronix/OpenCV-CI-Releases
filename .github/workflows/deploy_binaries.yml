@@ -45,7 +45,7 @@ jobs:
       - name: run check script
         run: bash check_old_assets.sh
         shell: bash
-        if: success() && (github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]'))
+        if: success() && (github.event_name != 'push')
       - name: Get Release Name
         id: rel_name
         run: |
