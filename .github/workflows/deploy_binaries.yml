@@ -72,10 +72,14 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: set release_name
         id: set_release_name
+        env:
+          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
         run: echo "release_name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: set tag_name
         id: set_tag_name
+        env:
+          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
         run: echo "tag_name=${RELEASE_TAGNAME}" >> "$GITHUB_OUTPUT"
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       
@@ -121,5 +125,5 @@ jobs:
           files: ${{ env.OPENCV_PATHNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ env.OUTPUT1 }}
-          tag: ${{ env.OUTPUT2 }}
+          tag_name: ${{ env.OUTPUT2 }}
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
