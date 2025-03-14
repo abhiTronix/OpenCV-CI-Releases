@@ -69,6 +69,10 @@ cd build
 PYTHON3_INCLUDE=$(python -c "from sysconfig import get_paths as gp; print(gp()['include'])")
 #PYTHON2_LIB=$(python2 -c "import distutils.sysconfig as sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
 PYTHON3_LIB=$(python -c "import distutils.sysconfig as sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
+
+echo "$PYTHON3_INCLUDE"
+echo "$PYTHON3_LIB"
+
 #-DPYTHON2_LIBRARY=$PYTHON2_LIB -DPYTHON3_LIBRARY=$PYTHON3_LIB -DPYTHON2_INCLUDE_DIR=$PYTHON2_INCLUDE -DPYTHON3_INCLUDE_DIR=$PYTHON3_INCLUDE \
 cmake -DCMAKE_BUILD_TYPE=RELEASE -DOPENCV_EXTRA_MODULES_PATH=$HOME/opencv_contrib/modules \
 	-DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_PYTHON_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF \
@@ -82,6 +86,8 @@ sudo ldconfig
 
 sudo ln -s /usr/local/lib/python$PYTHONSUFFIX/site-packages/*.so /opt/hostedtoolcache/Python/$PYTHONVERSION/x64/lib/python$PYTHONSUFFIX/site-packages
 sudo ldconfig
+
+echo "/usr/local/lib/python$PYTHONSUFFIX/site-packages/*.so /opt/hostedtoolcache/Python/$PYTHONVERSION/x64/lib/python$PYTHONSUFFIX/site-packages"
 
 OPENCV_VERSION=$(python -c 'import cv2; print(cv2.__version__)')
 
