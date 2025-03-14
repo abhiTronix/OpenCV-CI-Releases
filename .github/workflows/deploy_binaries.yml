@@ -112,14 +112,14 @@ jobs:
         if: success()
       - name: Upload Assets
         id: upload-assets
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v2
         env:
           OUTPUT1: ${{needs.create_gitrelease.outputs.output1}}
           OUTPUT2: ${{needs.create_gitrelease.outputs.output2}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_upload_url.outputs.data }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ${{ env.OPENCV_PATHNAME }}
-          asset_name: ${{ env.OPENCV_NAME }}
-          asset_content_type: application/x-deb
+          files: ${{ env.OPENCV_PATHNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ env.OUTPUT1 }}
+          tag: ${{ env.OUTPUT2 }}
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
