@@ -27,6 +27,9 @@ jobs:
   create_gitrelease:
     name: Create GitHub Release
     runs-on: ubuntu-20.04
+    outputs:
+      output1: ${{ steps.set_release_name.outputs.release_name }}
+      output2: ${{ steps.set_tag_name.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -67,16 +70,15 @@ jobs:
           draft: false
           prerelease: false
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-      - name: set upload_url
-        id: set_upload_url
-        uses: noobly314/share-data@v1
-        with:
-          share-id: release_url
-          mode: set
-          key: url
-          value: ${{ steps.create_release.outputs.upload_url }}
+      - name: set release_name
+        id: set_release_name
+        run: echo "release_name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-
+      - name: set tag_name
+        id: set_tag_name
+        run: echo "tag_name=${RELEASE_TAGNAME}" >> "$GITHUB_OUTPUT"
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
+      
   build_n_upload:
     name: Build-Upload OpenCV Binaries
     needs: create_gitrelease
@@ -108,18 +110,12 @@ jobs:
           echo $OPENCV_NAME
           echo $OPENCV_PATHNAME
         if: success()
-      - name: get upload_url
-        id: get_upload_url
-        uses: noobly314/share-data@v1
-        with:
-          share-id: release_url
-          mode: get
-          key: url
-        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: Upload Assets
         id: upload-assets
         uses: actions/upload-release-asset@v1
         env:
+          OUTPUT1: ${{needs.create_gitrelease.outputs.output1}}
+          OUTPUT2: ${{needs.create_gitrelease.outputs.output2}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_upload_url.outputs.data }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
