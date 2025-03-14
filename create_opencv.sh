@@ -68,7 +68,7 @@ cd build
 #PYTHON2_INCLUDE=$(python2 -c "from sysconfig import get_paths as gp; print(gp()['include'])")
 PYTHON3_INCLUDE=$(python -c "from sysconfig import get_paths as gp; print(gp()['include'])")
 #PYTHON2_LIB=$(python2 -c "import distutils.sysconfig as sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
-PYTHON3_LIB=$(python -c "import distutils.sysconfig as sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
+PYTHON3_LIB=$(python -c "import sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
 
 echo "$PYTHON3_INCLUDE"
 echo "$PYTHON3_LIB"
