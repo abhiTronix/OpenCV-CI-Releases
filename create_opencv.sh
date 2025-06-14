@@ -32,9 +32,7 @@ sudo apt-get install -y -qq --allow-unauthenticated build-essential cmake pkg-co
 
 sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev libswresample-dev
 
-sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-0  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base  
-
-sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-tools libgstreamer1.0-0  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base
 
 sudo apt-get install -y -qq --allow-unauthenticated libavcodec-dev libavformat-dev libswscale-dev libopenexr-dev
 
