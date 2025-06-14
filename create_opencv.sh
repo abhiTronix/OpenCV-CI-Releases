@@ -32,16 +32,15 @@ sudo apt-get install -y -qq --allow-unauthenticated build-essential cmake pkg-co
 
 sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev 
 
+sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-0  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base  
+
+sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+
 sudo apt-get install -y -qq --allow-unauthenticated libavcodec-dev libavformat-dev libswscale-dev libopenexr-dev
 
 sudo apt-get install -y -qq --allow-unauthenticated libxvidcore-dev libx264-dev libatlas-base-dev libtiff5-dev python3-dev liblapacke-dev
 
 sudo apt-get install -y -qq --allow-unauthenticated zlib1g-dev libjpeg-dev checkinstall libwebp-dev libpng-dev libopenblas-dev libopenblas-base
-
-sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-ugly gstreamer1.0-rtsp
-
-sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
-
 
 echo "Installing OpenCV Library"
 
@@ -79,7 +78,7 @@ PYTHON3_LIB=$(python -c "import sysconfig; import os; print(os.path.join('/usr/l
 cmake -DCMAKE_BUILD_TYPE=RELEASE -DOPENCV_EXTRA_MODULES_PATH=$HOME/opencv_contrib/modules \
 	-DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_PYTHON_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF \
 	-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_java=OFF -DWITH_LIBV4L=0N -DWITH_V4L=ON -DBUILD_JPEG=ON \
-	-DPYTHON_DEFAULT_EXECUTABLE=$(which python) -DOPENCV_SKIP_PYTHON_LOADER=ON \
+	-DPYTHON_DEFAULT_EXECUTABLE=$(which python) -DOPENCV_SKIP_PYTHON_LOADER=ON -DWITH_GSTREAMER=ON \
 	-DPYTHON3_LIBRARY=$PYTHON3_LIB -DPYTHON3_INCLUDE_DIR=$PYTHON3_INCLUDE \
 	-DOPENCV_GENERATE_PKGCONFIG=YES -DBUILD_opencv_java=OFF -DWITH_TBB=ON ..
 make -j$(nproc)
