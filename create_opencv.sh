@@ -30,7 +30,7 @@ echo "Installing OpenCV Dependencies..."
 
 sudo apt-get install -y -qq --allow-unauthenticated build-essential cmake pkg-config gfortran libavutil-dev ffmpeg
 
-sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev libavresample-dev
+sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev
 
 sudo apt-get install -y -qq --allow-unauthenticated libavcodec-dev libavformat-dev libswscale-dev libopenexr-dev
 
