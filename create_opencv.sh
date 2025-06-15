@@ -28,9 +28,11 @@ PYTHONVERSION=$(python -c 'import platform; print(platform.python_version())')
 
 echo "Installing OpenCV Dependencies..."
 
-sudo apt-get install -y -qq --allow-unauthenticated pkg-config build-essential cmake gfortran libavutil-dev ffmpeg
+sudo apt-get install -y -qq --allow-unauthenticated build-essential gfortran cmake
 
-sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev libswresample-dev
+sudo apt-get install -y -qq --reinstall --allow-unauthenticated pkg-config cmake-data
+
+sudo apt-get install -y -qq --allow-unauthenticated libavutil-dev ffmpeg yasm libv4l-dev libgtk-3-dev libtbb-dev libswresample-dev 
 
 sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev 
 
@@ -47,6 +49,7 @@ sudo apt-get install -y -qq --allow-unauthenticated zlib1g-dev libjpeg-dev check
 echo "Installing OpenCV Library"
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export PKG_CONFIG_EXECUTABLE=$(which pkg-config)
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 cd test_gstreamer || true
