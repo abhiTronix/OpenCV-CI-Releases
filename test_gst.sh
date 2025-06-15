@@ -16,10 +16,18 @@
 
 set -e
 
-echo "Testing GStreamer configuration..."
-
 sudo apt-get install -y -qq --allow-unauthenticated build-essential gfortran cmake
 
-cd test_gstreamer || true
+echo "Testing GStreamer configuration..."
+
+sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev 
+
+echo "changing test directory for GStreamer..."
+cd test_gstreamer
+cmake .
+if [ $? -ne 0 ]; then
+	echo "GStreamer test failed, exiting..."
+	exit 1
+fi
 
 echo "GStreamer test completed successfully."
