@@ -48,17 +48,6 @@ sudo apt-get install -y -qq --allow-unauthenticated zlib1g-dev libjpeg-dev check
 
 echo "Installing OpenCV Library"
 
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
-export PKG_CONFIG_EXECUTABLE=$(which pkg-config)
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-
-cd test_gstreamer || true
-cmake .
-if [ $? -ne 0 ]; then
-	echo "GStreamer test failed, exiting..."
-	exit 1
-fi
-
 cd $HOME
 git clone https://github.com/opencv/opencv.git
 cd opencv && git checkout 4.x

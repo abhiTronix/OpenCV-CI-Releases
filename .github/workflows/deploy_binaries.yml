@@ -101,9 +101,14 @@ jobs:
           sudo apt-get install -qq unzip wget -y
           sudo apt-get install -qq dos2unix -y
           chmod +x create_opencv.sh
+          chmod +x test_gst.sh
       - name: install_dependencies pip
         run: |
           pip install -U pip wheel numpy
+        if: success()
+      - name: test gstreamer
+        run: bash test_gst.sh
+        shell: bash
         if: success()
       - name: run script
         run: bash create_opencv.sh
