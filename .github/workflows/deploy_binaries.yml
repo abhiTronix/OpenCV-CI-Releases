@@ -97,7 +97,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: install_dependencies apt
         run: |
-          sudo apt-get update -qq
+          sudo apt-get update -qq 
           sudo apt-get install -qq unzip wget -y
           sudo apt-get install -qq dos2unix -y
           chmod +x create_opencv.sh
