@@ -28,9 +28,7 @@ PYTHONVERSION=$(python -c 'import platform; print(platform.python_version())')
 
 echo "Installing OpenCV Dependencies..."
 
-sudo apt-get install -y -qq --allow-unauthenticated pkg-config
-
-sudo apt-get install -y -qq --allow-unauthenticated build-essential cmake gfortran libavutil-dev ffmpeg
+sudo apt-get install -y -qq --allow-unauthenticated pkg-config build-essential cmake gfortran libavutil-dev ffmpeg
 
 sudo apt-get install -y -qq --allow-unauthenticated yasm libv4l-dev libgtk-3-dev libtbb-dev libswresample-dev
 
@@ -39,7 +37,6 @@ sudo apt-get install -y -qq --allow-unauthenticated libgstreamer1.0-dev libgstre
 sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly 
 
 sudo apt-get install -y -qq --allow-unauthenticated gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
-
 
 sudo apt-get install -y -qq --allow-unauthenticated libavcodec-dev libavformat-dev libswscale-dev libopenexr-dev
 
@@ -50,8 +47,14 @@ sudo apt-get install -y -qq --allow-unauthenticated zlib1g-dev libjpeg-dev check
 echo "Installing OpenCV Library"
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-gst-inspect-1.0 --gst-version
+cd test_gstreamer || true
+cmake -j$(nproc) .
+if [ $? -ne 0 ]; then
+	echo "GStreamer test failed, exiting..."
+	exit 1
+fi
 
 cd $HOME
 git clone https://github.com/opencv/opencv.git
