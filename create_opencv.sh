@@ -51,25 +51,15 @@ echo "Installing OpenCV Library"
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
-sudo ldconfig
-
-which gstreamer
-
 gst-inspect-1.0 --gst-version
 
 cd $HOME
+git clone https://github.com/opencv/opencv.git
+cd opencv && git checkout 4.x
 
-wget -qq -O opencv.zip https://github.com/opencv/opencv/archive/master.zip
-wget -qq -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/master.zip
-
-unzip -qq opencv.zip
-unzip -qq opencv_contrib.zip
-
-mv opencv-master opencv
-mv opencv_contrib-master opencv_contrib
-
-rm opencv.zip
-rm opencv_contrib.zip
+cd $HOME
+git clone https://github.com/opencv/opencv_contrib.git
+cd opencv_contrib && git checkout 4.x
 
 cd $HOME/opencv
 mkdir build
