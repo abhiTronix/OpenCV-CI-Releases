@@ -18,8 +18,6 @@ set -e
 
 echo "Testing GStreamer configuration..."
 
-dpkg --get-selections | grep hold
-
 sudo apt-get install -y -qq --allow-unauthenticated build-essential gfortran cmake
 
 cd test_gstreamer || true
