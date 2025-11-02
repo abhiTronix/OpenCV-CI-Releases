@@ -26,7 +26,7 @@ on:
 jobs:
   create_gitrelease:
     name: Create GitHub Release
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     outputs:
       output1: ${{ steps.set_release_name.outputs.release_name }}
       output2: ${{ steps.set_tag_name.outputs.tag_name }}
@@ -86,7 +86,7 @@ jobs:
   build_n_upload:
     name: Build-Upload OpenCV Binaries
     needs: create_gitrelease
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
