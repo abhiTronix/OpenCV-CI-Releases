@@ -59,14 +59,11 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
-          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
+        uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.RELEASE_TAGNAME }}
-          release_name: Release ${{ env.RELEASE_NAME }}
+          name: Release ${{ env.RELEASE_NAME }}
           draft: false
           prerelease: false
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
