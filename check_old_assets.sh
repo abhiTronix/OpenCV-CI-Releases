@@ -35,8 +35,8 @@ fi
 
 echo "Checking any old Binaries..."
 
-for value in 3.8 3.9 3.10 3.11; do
-    echo "$Testing OpenCV for $CURRENT_OPENCV_VERSION with python-$value"
+for value in 3.10 3.11 3.12 3.13; do
+    echo "Testing OpenCV for $CURRENT_OPENCV_VERSION with python-$value"
     LATEST_VERSION=$(curl -s https://api.github.com/repos/abhiTronix/OpenCV-CI-Releases/releases |
         grep "OpenCV-$CURRENT_OPENCV_VERSION-$value.*.deb" |
         grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*")
