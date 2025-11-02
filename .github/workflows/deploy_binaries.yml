@@ -26,7 +26,7 @@ on:
 jobs:
   create_gitrelease:
     name: Create GitHub Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       output1: ${{ steps.set_release_name.outputs.release_name }}
       output2: ${{ steps.set_tag_name.outputs.tag_name }}
@@ -59,11 +59,14 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
+          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.RELEASE_TAGNAME }}
-          name: Release ${{ env.RELEASE_NAME }}
+          release_name: Release ${{ env.RELEASE_NAME }}
           draft: false
           prerelease: false
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
@@ -83,7 +86,7 @@ jobs:
   build_n_upload:
     name: Build-Upload OpenCV Binaries
     needs: create_gitrelease
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
