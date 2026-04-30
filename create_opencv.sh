@@ -57,7 +57,7 @@ sudo apt-get install -y -qq --allow-unauthenticated \
 # Install math libraries
 echo "Installing math libraries..."
 sudo apt-get install -y -qq --allow-unauthenticated \
-    libatlas-base-dev liblapacke-dev libopenblas-dev libopenblas-base
+    libatlas-base-dev liblapacke-dev libopenblas-dev
 
 # Install GUI and parallel processing dependencies
 echo "Installing GUI and parallel processing dependencies..."
