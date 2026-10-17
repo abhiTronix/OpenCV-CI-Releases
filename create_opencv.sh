@@ -44,7 +44,7 @@ sudo apt-get install -y -qq \
     libxvidcore-dev libx264-dev \
     libavcodec-dev libavformat-dev libswscale-dev libswresample-dev \
     libtiff5-dev libjpeg-dev libpng-dev libwebp-dev libopenexr-dev \
-    libatlas-base-dev liblapacke-dev libopenblas-dev libopenblas-base \
+    libatlas-base-dev liblapack-dev libopenblas-dev \
     libgtk-3-dev libtbb-dev \
     zlib1g-dev checkinstall \
     libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev \
