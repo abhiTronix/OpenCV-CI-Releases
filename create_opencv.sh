@@ -37,41 +37,16 @@ echo "Installing OpenCV dependencies..."
 # Update package list
 sudo apt-get update -qq
 
-# Install build tools
-echo "Installing build essentials..."
-sudo apt-get install -y -qq --allow-unauthenticated build-essential gfortran cmake python3-dev
-sudo apt-get install -y -qq --allow-unauthenticated pkg-config cmake-data
-
-# Install video/codec dependencies
-echo "Installing video and codec dependencies..."
-sudo apt-get install -y -qq --allow-unauthenticated \
+# Build tools, codecs, image formats, math, GUI/TBB, packaging, GStreamer
+sudo apt-get install -y -qq \
+    build-essential gfortran cmake cmake-data pkg-config python3-dev \
     libavutil-dev ffmpeg yasm libv4l-dev \
     libxvidcore-dev libx264-dev \
-    libavcodec-dev libavformat-dev libswscale-dev libswresample-dev
-
-# Install image format dependencies
-echo "Installing image format dependencies..."
-sudo apt-get install -y -qq --allow-unauthenticated \
-    libtiff5-dev libjpeg-dev libpng-dev libwebp-dev libopenexr-dev
-
-# Install math libraries
-echo "Installing math libraries..."
-sudo apt-get install -y -qq --allow-unauthenticated \
-    libatlas-base-dev liblapacke-dev libopenblas-dev libopenblas-base
-
-# Install GUI and parallel processing dependencies
-echo "Installing GUI and parallel processing dependencies..."
-sudo apt-get install -y -qq --allow-unauthenticated \
-    libgtk-3-dev libtbb-dev
-
-# Install other required dependencies
-echo "Installing other dependencies..."
-sudo apt-get install -y -qq --allow-unauthenticated \
-    zlib1g-dev checkinstall
-
-# Install GStreamer dependencies
-echo "Installing GStreamer dependencies..."
-sudo apt-get install -y -qq --allow-unauthenticated \
+    libavcodec-dev libavformat-dev libswscale-dev libswresample-dev \
+    libtiff5-dev libjpeg-dev libpng-dev libwebp-dev libopenexr-dev \
+    libatlas-base-dev liblapacke-dev libopenblas-dev libopenblas-base \
+    libgtk-3-dev libtbb-dev \
+    zlib1g-dev checkinstall \
     libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev \
     gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
@@ -83,19 +58,10 @@ sudo apt-get install -y -qq --allow-unauthenticated \
 
 echo "Downloading OpenCV source code..."
 
-# Main OpenCV repository
+# Main + extra modules repositories (shallow, fresh runner)
 cd "$HOME"
-if [ ! -d "opencv" ]; then
-    git clone https://github.com/opencv/opencv.git
-fi
-cd opencv && git checkout 4.x && git pull
-
-# Extra modules repository
-cd "$HOME"
-if [ ! -d "opencv_contrib" ]; then
-    git clone https://github.com/opencv/opencv_contrib.git
-fi
-cd opencv_contrib && git checkout 4.x && git pull
+git clone --depth 1 -b 4.x https://github.com/opencv/opencv.git
+git clone --depth 1 -b 4.x https://github.com/opencv/opencv_contrib.git
 
 #######################################
 # OPENCV BUILD CONFIGURATION
@@ -110,7 +76,7 @@ cd build
 
 # Get Python paths for CMake configuration
 PYTHON3_INCLUDE=$(python -c "from sysconfig import get_paths as gp; print(gp()['include'])")
-PYTHON3_LIB=$(python -c "import sysconfig; import os; print(os.path.join('/usr/lib/x86_64-linux-gnu/', sysconfig.get_config_var('LDLIBRARY')))")
+PYTHON3_LIB=$(python -c "import sysconfig as s, os; print(os.path.join(s.get_config_var('LIBDIR'), s.get_config_var('LDLIBRARY')))")
 
 # Check if paths were found correctly
 if [ -z "$PYTHON3_INCLUDE" ] || [ -z "$PYTHON3_LIB" ]; then
@@ -138,7 +104,8 @@ cmake -DCMAKE_BUILD_TYPE=RELEASE \
     -DWITH_LIBV4L=ON \
     -DWITH_V4L=ON \
     -DBUILD_JPEG=ON \
-    -DPYTHON_DEFAULT_EXECUTABLE=$(which python) \
+    -DPYTHON_DEFAULT_EXECUTABLE="$(which python)" \
+    -DPYTHON3_EXECUTABLE="$(which python)" \
     -DOPENCV_SKIP_PYTHON_LOADER=ON \
     -DWITH_GSTREAMER=ON \
     -DPYTHON3_LIBRARY="$PYTHON3_LIB" \
@@ -160,7 +127,7 @@ sudo ldconfig
 
 # Create symbolic links for Python packages
 SITE_PACKAGES_DIR="/usr/local/lib/python$PYTHON_SUFFIX/site-packages"
-PYTHON_TARGET_DIR="/opt/hostedtoolcache/Python/$PYTHON_VERSION/x64/lib/python$PYTHON_SUFFIX/site-packages"
+PYTHON_TARGET_DIR=$(python -c 'import sysconfig; print(sysconfig.get_paths()["platlib"])')
 
 echo "Creating symbolic links from $SITE_PACKAGES_DIR to $PYTHON_TARGET_DIR"
 if [ -d "$SITE_PACKAGES_DIR" ]; then
@@ -201,7 +168,7 @@ echo | sudo checkinstall -D --install=no \
     --exclude="$HOME"
 
 # Rename package to standard naming convention
-CV_PATHNAME="OpenCV-$OPENCV_VERSION-$(python -c 'import platform; print(platform.python_version())').deb"
+CV_PATHNAME="OpenCV-$OPENCV_VERSION-$PYTHON_VERSION.deb"
 sudo mv "$(ls *.deb)" "$CV_PATHNAME"
 
 # Set GitHub environment variables if running in GitHub Actions

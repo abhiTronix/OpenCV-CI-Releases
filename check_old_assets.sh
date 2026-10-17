@@ -14,30 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "Downloading Version Files..."
-curl https://raw.githubusercontent.com/opencv/opencv/master/modules/core/include/opencv2/core/version.hpp -o version.hpp
+echo "Fetching current OpenCV version..."
+CURRENT_OPENCV_VERSION=$(curl -s https://raw.githubusercontent.com/opencv/opencv/4.x/modules/core/include/opencv2/core/version.hpp |
+    awk '/#define CV_VERSION_(MAJOR|MINOR|REVISION|STATUS)/{gsub(/"/,"",$3); v[$2]=$3}
+        END{print v["CV_VERSION_MAJOR"]"."v["CV_VERSION_MINOR"]"."v["CV_VERSION_REVISION"]v["CV_VERSION_STATUS"]}')
 
-CURRENT_OPENCV_VERSION=$(
-    python <<EOF
-import CppHeaderParser
-import re
-cppHeader = CppHeaderParser.CppHeader("version.hpp")
-headers = [re.split('\s+', h.replace('"',''))  for h in cppHeader.defines if h.startswith("CV_VERSION_")]
-cl_headers = [a[1]+"." if a[0].endswith(("MAJOR", "MINOR")) else a[1] for a in headers]
-print("".join(cl_headers))
-EOF
-)
-
-if [ -z "${CURRENT_OPENCV_VERSION}" ]; then
+if [ "${CURRENT_OPENCV_VERSION}" = ".." ] || [ -z "${CURRENT_OPENCV_VERSION}" ]; then
     echo "Something is wrong!"
     exit 1
 fi
 
 echo "Checking any old Binaries..."
+RELEASES=$(curl -s https://api.github.com/repos/abhiTronix/OpenCV-CI-Releases/releases)
 
 for value in 3.11 3.12 3.13 3.14; do
     echo "Testing OpenCV for $CURRENT_OPENCV_VERSION with python-$value"
-    LATEST_VERSION=$(curl -s https://api.github.com/repos/abhiTronix/OpenCV-CI-Releases/releases |
+    LATEST_VERSION=$(echo "$RELEASES" |
         grep "OpenCV-$CURRENT_OPENCV_VERSION-$value.*.deb" |
         grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*")
 
