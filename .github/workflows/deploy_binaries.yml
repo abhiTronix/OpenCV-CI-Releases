@@ -23,64 +23,34 @@ on:
   schedule:
     - cron: "0 0 14,28 * *"
 
+permissions:
+  contents: write
+
 jobs:
   create_gitrelease:
     name: Create GitHub Release
     runs-on: ubuntu-22.04
     outputs:
-      output1: ${{ steps.set_release_name.outputs.release_name }}
-      output2: ${{ steps.set_tag_name.outputs.tag_name }}
+      output2: ${{ steps.rel_name.outputs.tag_name }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.11
-      - name: install_apt_dep
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq unzip wget -y
-          sudo apt-get install -qq dos2unix -y
-          chmod +x check_old_assets.sh
-      - name: install_pip_dep
-        run: |
-          pip install -U pip wheel CppHeaderParser
-        if: success()
+      - uses: actions/checkout@v7
       - name: run check script
         run: bash check_old_assets.sh
         shell: bash
-        if: success() && (github.event_name != 'push')
+        if: github.event_name != 'push'
       - name: Get Release Name
         id: rel_name
         run: |
-          NAME="Build $(date +'%Y-%m-%d %H:%M')"
           TAGNAME="build-$(date +'%Y-%m-%d-%H-%M')"
-          echo "::set-output name=release_name::${TAGNAME}"
-          echo "::set-output name=tag_name::${TAGNAME}"
+          echo "tag_name=${TAGNAME}" >> "$GITHUB_OUTPUT"
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
-          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
+        uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ env.RELEASE_TAGNAME }}
-          release_name: Release ${{ env.RELEASE_NAME }}
-          draft: false
-          prerelease: false
-        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-      - name: set release_name
-        id: set_release_name
-        env:
-          RELEASE_NAME: ${{ steps.rel_name.outputs.release_name }}
-        run: echo "release_name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
-        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
-      - name: set tag_name
-        id: set_tag_name
-        env:
-          RELEASE_TAGNAME: ${{ steps.rel_name.outputs.tag_name }}
-        run: echo "tag_name=${RELEASE_TAGNAME}" >> "$GITHUB_OUTPUT"
+          tag_name: ${{ steps.rel_name.outputs.tag_name }}
+          name: Release ${{ steps.rel_name.outputs.tag_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
       
   build_n_upload:
@@ -91,16 +61,10 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install_dependencies apt
-        run: |
-          sudo apt-get update -qq 
-          sudo apt-get install -qq unzip wget -y
-          sudo apt-get install -qq dos2unix -y
-          chmod +x create_opencv.sh
       - name: install_dependencies pip
         run: |
           pip install -U pip wheel numpy
@@ -116,14 +80,9 @@ jobs:
         if: success()
       - name: Upload Assets
         id: upload-assets
-        uses: softprops/action-gh-release@v2
-        env:
-          OUTPUT1: ${{needs.create_gitrelease.outputs.output1}}
-          OUTPUT2: ${{needs.create_gitrelease.outputs.output2}}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ env.OPENCV_PATHNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ env.OUTPUT1 }}
-          tag_name: ${{ env.OUTPUT2 }}
+          tag_name: ${{ needs.create_gitrelease.outputs.output2 }}
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[RELEASE]')
